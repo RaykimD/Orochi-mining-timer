@@ -182,16 +182,18 @@ function App() {
          <img src={logo} alt="자생문 로고" className="h-32 w-32 object-contain" />
        </div>
        <div className="w-1/3">
-         <h1 className="text-4xl font-bold text-center">자생문 채광 타이머</h1>
+         <h1 className="text-4xl font-bold text-center">오로치 채광 타이머</h1>
        </div>
        <div className="w-1/3 text-right">
          <div className="text-2xl font-semibold">
-           현재 시간: {currentTime.toLocaleTimeString('ko-KR', {
+           현재 시간: {currentTime.toLocaleString('ko-KR', {
+             month: 'numeric',
+             day: 'numeric',
              hour: '2-digit',
              minute: '2-digit',
              second: '2-digit',
              hour12: false
-           })}
+           }).replace(/\./g, '/')}
          </div>
        </div>
      </div>
