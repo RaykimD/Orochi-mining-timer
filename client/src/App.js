@@ -179,7 +179,7 @@ function App() {
    <div className="container mx-auto p-4">
      <div className="flex items-center justify-between mb-6">
        <div className="w-1/3">
-         <img src={logo} alt="자생문 로고" className="h-32 w-32 object-contain" />
+         <img src={logo} alt="오로치 로고" className="h-40 w-40 object-contain" />
        </div>
        <div className="w-1/3">
          <h1 className="text-4xl font-bold text-center">오로치 채광 타이머</h1>
@@ -187,12 +187,14 @@ function App() {
        <div className="w-1/3 text-right">
          <div className="text-2xl font-semibold">
            현재 시간: {currentTime.toLocaleString('ko-KR', {
-             month: 'numeric',
-             day: 'numeric',
-             hour: '2-digit',
-             minute: '2-digit',
-             second: '2-digit',
-             hour12: false
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            }).replace('일 ', '일 ')}
+          </div>
            }).replace(/\./g, '/')}
          </div>
        </div>
@@ -213,7 +215,7 @@ function App() {
              <th className="border p-2 w-24">채광 No.</th>
              <th className="border p-2 w-40">채굴 쿨타임</th>
              <th className="border p-2 w-40">타이머</th>
-             <th className="border p-2 w-40">종료 시각</th>
+             <th className="border p-2 w-40">채굴장 리셋 시간</th>
              <th className="border p-2 w-40">동작</th>
            </tr>
          </thead>
