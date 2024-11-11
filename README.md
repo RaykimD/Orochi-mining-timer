@@ -1,1 +1,2 @@
-# Orochi-mining-timer
+# mining-timer
+Mining Timer Application
