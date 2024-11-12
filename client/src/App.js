@@ -89,32 +89,36 @@ function App() {
    };
  }, []);
 
- const startTimer = (id, minutes) => {
+const startTimer = (id, minutes) => {
    if (ws?.readyState === WebSocket.OPEN) {
      const endTime = new Date(currentTime.getTime() + minutes * 60000);
+     const currentTimer = timers.find(t => t.id === id);
      ws.send(JSON.stringify({
        type: 'start-timer',
        id,
        minutes,
-       endTime: endTime.toISOString()
+       endTime: endTime.toISOString(),
+       spawnPoint: currentTimer?.spawnPoint || ''  // 추가
      }));
    } else {
      console.error('WebSocket is not connected');
      setConnectionStatus('연결 오류 - 새로고침 필요');
    }
- };
+};
 
- const resetTimer = (id) => {
+const resetTimer = (id) => {
    if (ws?.readyState === WebSocket.OPEN) {
+     const currentTimer = timers.find(t => t.id === id);
      ws.send(JSON.stringify({
        type: 'reset-timer',
-       id
+       id,
+       spawnPoint: currentTimer?.spawnPoint || ''  // 추가
      }));
    } else {
      console.error('WebSocket is not connected');
      setConnectionStatus('연결 오류 - 새로고침 필요');
    }
- };
+};
 
  const deleteTimer = (id) => {
    if (ws?.readyState === WebSocket.OPEN) {
