@@ -348,16 +348,17 @@ function App() {
     </Droppable>
   </DragDropContext>
 </table>
-      <div className="mt-4 flex justify-center">
-        <button
-          onClick={addNewRow}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          행 추가
-        </button>
-      </div>
-    </div>
-  );
+</div>
+<div className="mt-4 flex justify-center">
+  <button
+    onClick={addNewRow}
+    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+  >
+    행 추가
+  </button>
+</div>
+</div>
+);
 }
 
 export default App;
