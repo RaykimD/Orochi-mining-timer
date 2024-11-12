@@ -144,7 +144,8 @@ function App() {
          minutes: '',
          timeLeft: 0,
          isRunning: false,
-         endTime: null
+         endTime: null,
+         spawnPoint: '' // 추가된 부분
        }
      }));
    } else {
@@ -176,7 +177,7 @@ function App() {
    });
  };
 
- const sortByRegenTime = () => {
+const sortByRegenTime = () => {
    setTimers(prev => {
      return [...prev].sort((a, b) => {
        if (!a.endTime) return 1;
@@ -229,136 +230,155 @@ function App() {
      </div>
      <div className="overflow-x-auto">
        <table className="min-w-full bg-white border">
-  <thead>
-    <tr className="bg-gray-100">
-      <th className="border p-2 w-24">채굴장 No.</th>
-      <th className="border p-2 w-40">채굴장 쿨타임</th>
-      <th className="border p-2 w-40">타이머</th>
-      <th className="border p-2 w-40 cursor-pointer" onClick={sortByRegenTime}>
-        채굴장 리셋 시간 ↑↓
-      </th>
-      <th className="border p-2 w-40">동작</th>
-    </tr>
-  </thead>
-  <DragDropContext onDragEnd={onDragEnd}>
-    <Droppable droppableId="timers">
-      {(provided) => (
-        <tbody {...provided.droppableProps} ref={provided.innerRef}>
-          {timers.map((timer, index) => (
-            <Draggable 
-              key={timer.id} 
-              draggableId={timer.id.toString()} 
-              index={index}
-            >
-              {(provided) => (
-                <tr
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className={`${getRowClassName(timer)} hover:bg-gray-50`}
-                >
-                  <td className="border p-2 text-center">
-                    <select
-                      className="w-full p-1 border rounded"
-                      value={timer.id || ''}
-                      onChange={(e) => {
-                        const newId = parseInt(e.target.value);
-                        setTimers(prev => prev.map(t => 
-                          t.id === timer.id ? { ...t, id: newId } : t
-                        ));
-                      }}
-                    >
-                      <option value="">선택</option>
-                      {Array.from({length: 64}, (_, i) => i + 1).map(num => {
-                        const isUsed = timers.some(t => t.id === num && t.id !== timer.id);
-                        return (
-                          <option 
-                            key={num} 
-                            value={num}
-                            disabled={isUsed}
-                          >
-                            {num}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </td>
-                  <td className="border p-2 text-center">
-                    <input
-                      type="number"
-                      className="w-full p-1 border rounded"
-                      value={timer.minutes || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const newMinutes = parseInt(value);
-                        if (value === '' || (!isNaN(newMinutes) && newMinutes >= 0 && newMinutes <= 1000)) {
-                          setTimers(prev => prev.map(t =>
-                            t.id === timer.id ? { ...t, minutes: value === '' ? '' : newMinutes } : t
-                          ));
-                        }
-                      }}
-                      disabled={timer.isRunning}
-                      min="0"
-                      max="1000"
-                    />
-                  </td>
-                  <td className="border p-2 text-center">
-                    <div className="text-xl font-mono">
-                      {timer.isRunning ? formatTime(timer.timeLeft) : '--:--'}
-                    </div>
-                  </td>
-                  <td className="border p-2 text-center">
-                    {formatEndTime(timer.endTime)}
-                  </td>
-                  <td className="border p-2 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <button
-                        className={`px-3 py-1 rounded ${
-                          timer.isRunning || !timer.minutes
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600 text-white'
-                        }`}
-                        onClick={() => startTimer(timer.id, timer.minutes)}
-                        disabled={timer.isRunning || !timer.minutes}
-                      >
-                        시작
-                      </button>
-                      <button
-                        className="px-3 py-1 rounded bg-red-500 hover:bg-red-600 text-white"
-                        onClick={() => resetTimer(timer.id)}
-                      >
-                        리셋
-                      </button>
-                      <button
-                        className="px-3 py-1 rounded bg-gray-500 hover:bg-gray-600 text-white"
-                        onClick={() => deleteTimer(timer.id)}
-                        disabled={timer.isRunning}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </Draggable>
-          ))}
-          {provided.placeholder}
-        </tbody>
-      )}
-    </Droppable>
-  </DragDropContext>
-</table>
-</div>
-<div className="mt-4 flex justify-center">
-  <button
-    onClick={addNewRow}
-    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-  >
-    행 추가
-  </button>
-</div>
-</div>
-);
+         <thead>
+           <tr className="bg-gray-100">
+             <th className="border p-2 w-20">채굴장 No.</th>
+             <th className="border p-2 w-24">채굴장 쿨타임</th>
+             <th className="border p-2 w-32">타이머</th>
+             <th className="border p-2 w-40 cursor-pointer" onClick={sortByRegenTime}>
+               채굴장 리셋 시간 ↑↓
+             </th>
+             <th className="border p-2 w-40">동작</th>
+             <th className="border p-2 w-28">스폰 지점</th>
+           </tr>
+         </thead>
+         <DragDropContext onDragEnd={onDragEnd}>
+           <Droppable droppableId="timers">
+             {(provided) => (
+               <tbody {...provided.droppableProps} ref={provided.innerRef}>
+                 {timers.map((timer, index) => (
+                   <Draggable 
+                     key={timer.id} 
+                     draggableId={timer.id.toString()} 
+                     index={index}
+                   >
+                     {(provided) => (
+                       <tr
+                         ref={provided.innerRef}
+                         {...provided.draggableProps}
+                         {...provided.dragHandleProps}
+                         className={`${getRowClassName(timer)} hover:bg-gray-50`}
+                       >
+                         <td className="border p-2 text-center">
+                           <select
+                             className="w-full p-1 border rounded"
+                             value={timer.id || ''}
+                             onChange={(e) => {
+                               const newId = parseInt(e.target.value);
+                               setTimers(prev => prev.map(t => 
+                                 t.id === timer.id ? { ...t, id: newId } : t
+                               ));
+                             }}
+                           >
+                             <option value="">선택</option>
+                             {Array.from({length: 64}, (_, i) => i + 1).map(num => {
+                               const isUsed = timers.some(t => t.id === num && t.id !== timer.id);
+                               return (
+                                 <option 
+                                   key={num} 
+                                   value={num}
+                                   disabled={isUsed}
+                                 >
+                                   {num}
+                                 </option>
+                               );
+                             })}
+                           </select>
+                         </td>
+                         <td className="border p-2 text-center">
+                           <input
+                             type="number"
+                             className="w-full p-1 border rounded"
+                             value={timer.minutes || ''}
+                             onChange={(e) => {
+                               const value = e.target.value;
+                               const newMinutes = parseInt(value);
+                               if (value === '' || (!isNaN(newMinutes) && newMinutes >= 0 && newMinutes <= 1000)) {
+                                 setTimers(prev => prev.map(t =>
+                                   t.id === timer.id ? { ...t, minutes: value === '' ? '' : newMinutes } : t
+                                 ));
+                               }
+                             }}
+                             disabled={timer.isRunning}
+                             min="0"
+                             max="1000"
+                           />
+                         </td>
+                         <td className="border p-2 text-center">
+                           <div className="text-xl font-mono">
+                             {timer.isRunning ? formatTime(timer.timeLeft) : '--:--'}
+                           </div>
+                         </td>
+                         <td className="border p-2 text-center">
+                           {formatEndTime(timer.endTime)}
+                         </td>
+                         <td className="border p-2 text-center">
+                           <div className="flex justify-center space-x-2">
+                             <button
+                               className={`px-3 py-1 rounded ${
+                                 timer.isRunning || !timer.minutes
+                                   ? 'bg-gray-400 cursor-not-allowed'
+                                   : 'bg-blue-500 hover:bg-blue-600 text-white'
+                               }`}
+                               onClick={() => startTimer(timer.id, timer.minutes)}
+                               disabled={timer.isRunning || !timer.minutes}
+                             >
+                               시작
+                             </button>
+                             <button
+                               className="px-3 py-1 rounded bg-red-500 hover:bg-red-600 text-white"
+                               onClick={() => resetTimer(timer.id)}
+                             >
+                               리셋
+                             </button>
+                             <button
+                               className="px-3 py-1 rounded bg-gray-500 hover:bg-gray-600 text-white"
+                               onClick={() => deleteTimer(timer.id)}
+                               disabled={timer.isRunning}
+                             >
+                               삭제
+                             </button>
+                           </div>
+                         </td>
+                         <td className="border p-2 text-center">
+                           <select
+                             className="w-full p-1 border rounded"
+                             value={timer.spawnPoint || ''}
+                             onChange={(e) => {
+                               setTimers(prev => prev.map(t =>
+                                 t.id === timer.id ? { ...t, spawnPoint: e.target.value } : t
+                               ));
+                             }}
+                           >
+                             <option value="">선택</option>
+                             <option value="전초 1">전초 1</option>
+                             <option value="전초 2">전초 2</option>
+                             <option value="전초 3">전초 3</option>
+                             <option value="스폰">스폰</option>
+                             <option value="사냥터">사냥터</option>
+                           </select>
+                         </td>
+                       </tr>
+                     )}
+                   </Draggable>
+                 ))}
+                 {provided.placeholder}
+               </tbody>
+             )}
+           </Droppable>
+         </DragDropContext>
+       </table>
+     </div>
+     <div className="mt-4 flex justify-center">
+       <button
+         onClick={addNewRow}
+         className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+       >
+         행 추가
+       </button>
+     </div>
+   </div>
+  );
 }
 
 export default App;
