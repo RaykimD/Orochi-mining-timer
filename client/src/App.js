@@ -160,17 +160,16 @@ const resetTimer = (id) => {
 
  const getRowClassName = (timer) => {
    if (!timer.isRunning) return '';
-   if (timer.timeLeft <= 60) return 'animate-pulse bg-red-300 font-bold';
-   if (timer.timeLeft <= 180) return 'animate-pulse bg-yellow-300 font-bold';
-   return '';
- };
-
- const getRowClassName = (timer) => {
-   if (!timer.isRunning) return '';
    if (timer.timeLeft <= 120) return 'animate-pulse bg-red-300 font-bold';  // 2분 (120초)
    if (timer.timeLeft <= 300) return 'animate-pulse bg-yellow-300 font-bold';  // 5분 (300초)
    return '';
 };
+
+ const formatTime = (seconds) => {
+   const mins = Math.floor(seconds / 60);
+   const secs = seconds % 60;
+   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+ };
 
  const formatEndTime = (date) => {
    if (!date) return '--:--:--';
